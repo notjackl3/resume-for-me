@@ -1,8 +1,10 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'static-resume/style.css' %}">
     <title>Document</title>
 </head>
 <body>
@@ -13,33 +15,69 @@
     <iframe id="pdfPreview" width="100%" height="600px" frameborder="0" title="PDF Document"></iframe>
     <!-- src="{{ MEDIA_URL }}media-resume/resume.pdf" -->
 
-    <form id="add-experience-form">
-        {% csrf_token %}
-    
-        <h2>Add Work Experience</h2>
-        <label for="name">Experience Name:</label>
-        <input type="text" id="name" name="name" maxlength="100" required><br><br>
-        <label for="date">Date:</label>
-        <input type="text" id="date" name="date" maxlength="100" required><br><br>
-        <label for="location">Location:</label>
-        <input type="text" id="location" name="location" maxlength="100" required><br><br>
-        <label for="organisation">Organisation:</label>
-        <input type="text" id="organisation" name="organisation" maxlength="100" required><br><br>
-    
-        <h3>Descriptions</h3>
-        <label for="description1">Description 1:</label><br>
-        <textarea id="description1" name="descriptions[]" rows="3" cols="50"></textarea><br><br>
-        <label for="description2">Description 2:</label><br>
-        <textarea id="description2" name="descriptions[]" rows="3" cols="50"></textarea><br><br>
-        <label for="description3">Description 3:</label><br>
-        <textarea id="description3" name="descriptions[]" rows="3" cols="50"></textarea><br><br>
-    
-        <button type="submit">Submit Experience</button>
-    </form>    
+    <div class="main-container">
+        <form id="add-experience-form">
+            {% csrf_token %}
+        
+            <h1>Add Work Experience</h1>
+            <label for="name">Experience Name:</label>
+            <input type="text" id="name" name="name" maxlength="100" required><br><br>
+            <label for="date">Date:</label>
+            <input type="text" id="date" name="date" maxlength="100" required><br><br>
+            <label for="location">Location:</label>
+            <input type="text" id="location" name="location" maxlength="100" required><br><br>
+            <label for="organisation">Organisation:</label>
+            <input type="text" id="organisation" name="organisation" maxlength="100" required><br><br>
+        
+            <h3>Descriptions</h3>
+            <label for="description1">Description 1:</label><br>
+            <textarea id="description1" name="descriptions[]" rows="3" cols="50"></textarea><br><br>
+            <label for="description2">Description 2:</label><br>
+            <textarea id="description2" name="descriptions[]" rows="3" cols="50"></textarea><br><br>
+            <label for="description3">Description 3:</label><br>
+            <textarea id="description3" name="descriptions[]" rows="3" cols="50"></textarea><br><br>
+        
+            <button type="submit">Submit Experience</button>
+        </form>   
+
+        <div class="sub-container">
+            <h1 id="section">Experiences</h1>
+            <div class="content-container">
+                <div class="content">
+                    <h3 class="content-label">Position name</h3>
+                    <p id="name">Workshop Lead</p>
+                    <h3 class="content-label">Organisation</h3>
+                    <p id="organisation" class="content-data">Ignition Hacks V6</p>
+                    <h3 class="content-label">Date start/end</h3>
+                    <p id="date" class="content-data">July 2025 -- August 2025</p>
+                    <h3 class="content-label">Location</h3>
+                    <p id="location" class="content-data">Toronto, Canada</p>
+                    <h3 class="content-label">Description</h3>
+                    <div id="descriptions">
+                        <p class="description" class="content-data">Present Mapbox content</p>
+                        <p class="description" class="content-data">Organize materials and venue</p>
+                    </div>
+                </div>
+
+                <div class="content">
+                    <h4 id="name">Workshop Lead</h4>
+                    <p id="organisation">Ignition Hacks V6</p>
+                    <p id="date">July 2025 -- August 2025</p>
+                    <p id="location">Toronto, Canada</p>
+                    <div id="descriptions">
+                        <p class="description">Present Mapbox content</p>
+                        <p class="description">Organize materials and venue</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <form id="prepare-pdf-form">
         <button type="submit">Prepare pdf</button>
     </form>
+
+
 </body>
 <script>
     const form = document.getElementById("add-experience-form");
