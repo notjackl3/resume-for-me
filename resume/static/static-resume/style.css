@@ -112,7 +112,7 @@ form button:hover {
 /* Each experience item */
 .content-wrapper {
     display: flex;
-    gap: 1.2rem;
+    flex-direction: column;
     background: #f9f9f9;
     border-radius: 10px;
     padding: 1rem;
@@ -127,7 +127,7 @@ form button:hover {
 /* Buttons on the left of each experience */
 .button-wrapper {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     gap: 0.6rem;
 }
 
@@ -190,4 +190,55 @@ form button:hover {
     position: absolute;
     left: 0;
     color: #4A90E2;
+}
+
+.dropdown {
+      position: relative;
+      display: inline-block;
+    }
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: white;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
+    z-index: 1;
+}
+
+.dropdown-content a {
+    display: block;
+    padding: 8px 12px;
+    cursor: pointer;
+    text-decoration: none;
+    color: black;
+}
+
+.dropdown-content a:hover {
+    background-color: #ddd;
+}
+
+.dropdown.show .dropdown-content {
+    display: block;
+}
+
+button {
+    padding: 8px 12px;
+    cursor: pointer;
+}
+
+.dropdown-btn {
+    background: #E94E4E;
+    color: #fff;
+    padding: 1rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: large;
+    font-weight: bold;
+    transition: background 0.2s;
+}
+
+.dropdown-btn:hover {
+    background: #C63C3C;
 }

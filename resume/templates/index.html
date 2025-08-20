@@ -19,7 +19,19 @@
         <form id="add-experience-form" class="sub-container">
             {% csrf_token %}
         
-            <h1>Add Work Experience</h1>
+
+            <div class="dropdown">
+            <button id="dropdownBtn" class="dropdown-btn">Select a section ▼</button>
+            <div id="dropdownContent" class="dropdown-content">
+                <a href="#" data-value="Education ▼">Education</a>
+                <a href="#" data-value="Technical Skills ▼">Technical Skills</a>
+                <a href="#" data-value="Work Experiences ▼">Work Experiences</a>
+                <a href="#" data-value="Personal Projects ▼">Personal Projects</a>
+                <a href="#" data-value="Interpersonal Skills ▼">Interpersonal Skills</a>
+            </div>
+            </div>
+
+
             <label for="name">Experience Name:</label>
             <input type="text" id="name" name="name" maxlength="100" required><br><br>
             <label for="date">Date:</label>
@@ -29,12 +41,11 @@
             <label for="organisation">Organisation:</label>
             <input type="text" id="organisation" name="organisation" maxlength="100" required><br><br>
         
-            <h3>Descriptions</h3>
-            <label for="description1">Description 1:</label><br>
+            <label for="description1">Description 1:</label>
             <textarea id="description1" name="descriptions[]" rows="3" cols="50"></textarea><br><br>
-            <label for="description2">Description 2:</label><br>
+            <label for="description2">Description 2:</label>
             <textarea id="description2" name="descriptions[]" rows="3" cols="50"></textarea><br><br>
-            <label for="description3">Description 3:</label><br>
+            <label for="description3">Description 3:</label>
             <textarea id="description3" name="descriptions[]" rows="3" cols="50"></textarea><br><br>
         
             <button type="submit">Submit Experience</button>
@@ -57,6 +68,36 @@
 
 </body>
 <script>
+    function chooseOption(option) {
+        // Replace alert with your actual handling logic
+    }
+    const dropdownBtn = document.getElementById('dropdownBtn');
+    const dropdown = document.querySelector('.dropdown');
+    const dropdownContent = document.getElementById('dropdownContent');
+
+    dropdownBtn.addEventListener('click', (e) => {
+        e.stopPropagation(); // prevent window click from instantly closing it
+        dropdown.classList.toggle('show');
+    });
+
+    // Update the button text when an option is clicked
+    dropdownContent.querySelectorAll('a').forEach(option => {
+        option.addEventListener('click', (e) => {
+        e.preventDefault();
+        dropdownBtn.textContent = option.dataset.value;
+        dropdown.classList.remove('show'); // close menu after selection
+        });
+    });
+
+    // Close dropdown if clicked outside
+    window.addEventListener('click', (e) => {
+        if (!dropdown.contains(e.target)) {
+        dropdown.classList.remove('show');
+        }
+    });
+
+
+
     const form = document.getElementById("add-experience-form");
     const PREPARE_PDF_URL = "{% url 'prepare_pdf' %}";
     const RESET_PANEL_URL = "{% url 'reset_panel' %}";

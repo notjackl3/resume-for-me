@@ -47,13 +47,15 @@ def compile_experience_to_latex(content):
             organisation = experience["organisation"]
             date = experience["date"]
             descriptions = experience["descriptions"]
-            description1 = descriptions[0]
+            temp = ""
+            for desc in descriptions:
+                temp += fr"\resumeItem{{{desc}}}"
 
             new_latex_content += fr"""
             \resumeBiHeading{{{name}}}{{{organisation}}}{{{date}}}
             \resumeItemListStart{{}}
             \vspace{{-7pt}}
-            \resumeItem{{{description1}}}
+            {temp}
             \resumeItemListEnd{{}}
 
             """
