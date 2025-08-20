@@ -42,33 +42,35 @@
 
         <div class="sub-container">
             <h1 id="section">Experiences</h1>
-            <div class="content-container">
-                <div class="content">
-                    <h3 class="content-label">Position name</h3>
-                    <p id="name">Workshop Lead</p>
-                    <h3 class="content-label">Organisation</h3>
-                    <p id="organisation" class="content-data">Ignition Hacks V6</p>
-                    <h3 class="content-label">Date start/end</h3>
-                    <p id="date" class="content-data">July 2025 -- August 2025</p>
-                    <h3 class="content-label">Location</h3>
-                    <p id="location" class="content-data">Toronto, Canada</p>
-                    <h3 class="content-label">Description</h3>
-                    <div id="descriptions">
-                        <p class="description" class="content-data">Present Mapbox content</p>
-                        <p class="description" class="content-data">Organize materials and venue</p>
+            <div id="minor-experiences-container" class="content-container">
+                {% for exp in minor_experiences %}
+                <div class="content-wrapper">
+                    <div class="button-wrapper">
+                        {% if exp.included %}
+                        <button type="button" onclick="removeFromPDF('{{ exp.id }}', 'minor-experience')">Remove from PDF</button>
+                        {% else %}
+                        <button type="button" onclick="addToPDF('{{ exp.id }}', 'minor-experience')">Add to PDF</button>
+                        {% endif %}
+                        <button type="button" onclick="deleteItem('{{ exp.id }}', 'minor-experience')">Delete</button>
+                    </div>
+                    <div data-id="{{ exp.id }}" data-name="{{ exp.name }}" data-organisation="{{ exp.organisation }}" data-date="{{ exp.date }}" data-location="{{ exp.location }}" class="content">
+                        <h3 class="content-label">Position name</h3>
+                        <p id="name">{{ exp.name }}</p>
+                        <h3 class="content-label">Organisation</h3>
+                        <p id="organisation" class="content-data">{{ exp.organisation }}</p>
+                        <h3 class="content-label">Date start/end</h3>
+                        <p id="date" class="content-data">{{ exp.date }}</p>
+                        <h3 class="content-label">Location</h3>
+                        <p id="location" class="content-data">{{ exp.location }}</p>
+                        <h3 class="content-label">Description</h3>
+                        <div id="descriptions">
+                            {% for desc in exp.descriptions %}
+                            <p class="description" class="content-data">{{ desc.content }}</p>
+                            {% endfor %}
+                        </div>
                     </div>
                 </div>
-
-                <div class="content">
-                    <h4 id="name">Workshop Lead</h4>
-                    <p id="organisation">Ignition Hacks V6</p>
-                    <p id="date">July 2025 -- August 2025</p>
-                    <p id="location">Toronto, Canada</p>
-                    <div id="descriptions">
-                        <p class="description">Present Mapbox content</p>
-                        <p class="description">Organize materials and venue</p>
-                    </div>
-                </div>
+                {% endfor %}
             </div>
         </div>
     </div>
@@ -76,19 +78,29 @@
     <form id="prepare-pdf-form">
         <button type="submit">Prepare pdf</button>
     </form>
+    <form id="reset-panel-form">
+        <button type="submit">Reset panel</button>
+    </form>
 
 
 </body>
 <script>
     const form = document.getElementById("add-experience-form");
+    const PREPARE_PDF_URL = "{% url 'prepare_pdf' %}";
+    const RESET_PANEL_URL = "{% url 'reset_panel' %}";
+    const DELETE_URL = "{% url 'delete_experience' %}";
+    const EDIT_URL = "{% url 'edit_experience' %}";
+
+    window.onload = () => {
+        fetch(PREPARE_PDF_URL);    
+        fetch(RESET_PANEL_URL);
+    };
 
     form.addEventListener("submit", async function(event) {
         event.preventDefault(); // prevent page reload
 
         const formData = new FormData(form);
-
-        // Fetch POST request to your Django view
-        const response = await fetch("{% url 'add_experience' %}", {
+        const response = await fetch(`{% url 'add_experience' %}?type=minor-experience`, {
             method: "POST",
             headers: {
                 "X-CSRFToken": formData.get("csrfmiddlewaretoken")
@@ -99,30 +111,42 @@
         if (response.ok) {
             const data = await response.json();
             console.log("Experience added successfully:", data);
-
-            // Optionally, clear the form
             form.reset();
-
-            // The WebSocket will handle updating the PDF automatically
+            fetch(RESET_PANEL_URL);
         } else {
             console.error("Error adding experience");
         }
     });
 
     const form2 = document.getElementById("prepare-pdf-form");
-
     form2.addEventListener("submit", async function(event) {
         event.preventDefault(); // prevent page reload
 
         const formData2 = new FormData(form);
 
         // Fetch POST request to your Django view
-        const response = await fetch("{% url 'prepare_pdf' %}", {
+        const response = await fetch(PREPARE_PDF_URL, {
             method: "POST",
             headers: {
                 "X-CSRFToken": formData2.get("csrfmiddlewaretoken")
             },
             body: formData2
+        })
+    });
+
+    const form3 = document.getElementById("reset-panel-form");
+    form3.addEventListener("submit", async function(event) {
+        event.preventDefault(); // prevent page reload
+
+        const formData3 = new FormData(form);
+
+        // Fetch POST request to your Django view
+        const response = await fetch(RESET_PANEL_URL, {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": formData3.get("csrfmiddlewaretoken")
+            },
+            body: formData3
         })
     });
 
@@ -133,12 +157,92 @@
 
     socket.onmessage = function(e) {
         const data = JSON.parse(e.data);
-        console.log(data)
         if (data.event === "pdf_ready") {
             console.log("date.event is in fact pdf_ready")
             console.log(data.url)
             document.getElementById('pdfPreview').src = data.url;
         }
+        else if (data.event == "reset_panel") {
+            const experiencesData = data.minor_experiences_data;
+            const container = document.getElementById('minor-experiences-container');
+
+            console.log("resetting panel")
+            console.log(experiencesData)
+            
+            // Clear any existing content
+            container.innerHTML = '';
+
+            // Loop through the data and create new HTML elements
+            experiencesData.forEach(exp => {
+                // Create the main content wrapper
+                const contentWrapper = document.createElement('div');
+                contentWrapper.className = 'content-wrapper';
+
+                // Create the button wrapper
+                const buttonWrapper = document.createElement('div');
+                buttonWrapper.className = 'button-wrapper';
+
+                // Create "Add/Remove from PDF" button
+                const addButton = document.createElement('button');
+                addButton.type = 'button';
+                if (exp.included) {
+                    addButton.textContent = 'Remove from PDF';
+                    addButton.onclick = () => removeFromPDF(exp.id, 'minor-experience');
+                } else {
+                    addButton.textContent = 'Add to PDF';
+                    addButton.onclick = () => addToPDF(exp.id, 'minor-experience');
+                }
+                buttonWrapper.appendChild(addButton);
+
+                // Create "Delete" button
+                const deleteButton = document.createElement('button');
+                deleteButton.type = 'button';
+                deleteButton.textContent = 'Delete';
+                deleteButton.onclick = () => deleteItem(exp.id, 'minor-experience');
+                buttonWrapper.appendChild(deleteButton);
+
+                // Create the content div
+                const contentDiv = document.createElement('div');
+                contentDiv.className = 'content';
+                contentDiv.dataset.id = exp.id;
+                contentDiv.dataset.name = exp.name;
+                contentDiv.dataset.organisation = exp.organisation;
+                contentDiv.dataset.date = exp.date;
+                contentDiv.dataset.location = exp.location;
+
+                // Add the content to the div
+                contentDiv.innerHTML = `
+                    <h3 class="content-label">Position name</h3>
+                    <p id="name">${exp.name}</p>
+                    <h3 class="content-label">Organisation</h3>
+                    <p id="organisation" class="content-data">${exp.organisation}</p>
+                    <h3 class="content-label">Date start/end</h3>
+                    <p id="date" class="content-data">${exp.date}</p>
+                    <h3 class="content-label">Location</h3>
+                    <p id="location" class="content-data">${exp.location}</p>
+                    <h3 class="content-label">Description</h3>
+                `;
+                
+                // Create the descriptions div and populate it
+                const descriptionsDiv = document.createElement('div');
+                descriptionsDiv.id = 'descriptions';
+                exp.descriptions.forEach(desc => {
+                    const descriptionParagraph = document.createElement('p');
+                    descriptionParagraph.className = 'description content-data';
+                    descriptionParagraph.textContent = desc; // The description is just a string now
+                    descriptionsDiv.appendChild(descriptionParagraph);
+                });
+                contentDiv.appendChild(descriptionsDiv);
+
+                // Append everything to the main wrapper
+                contentWrapper.appendChild(buttonWrapper);
+                contentWrapper.appendChild(contentDiv);
+                
+                // Append the new content to the container
+                container.appendChild(contentWrapper);
+            });
+        }
     };
 </script>
+<script src="{% static 'static-resume/script.js' %}"></script> 
 </html>
