@@ -32,10 +32,8 @@ class PDFPreviewConsumer(AsyncWebsocketConsumer):
             experience_dict = model_to_dict(experience)
             
             descriptions = await self.get_descriptions(experience_dict["id"])
-            experience_dict["descriptions"] = [desc.content for desc in descriptions]
+            experience_dict["descriptions"] = [(desc.id, desc.content) for desc in descriptions]
             experiences_data.append(experience_dict)
-        
-        print(experiences_data)
 
         # this method sends a json to the browser, telling it to use the url to render the pdf file to the front-end
         await self.send(text_data=json.dumps({
